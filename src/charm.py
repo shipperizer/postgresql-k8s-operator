@@ -499,7 +499,7 @@ class PostgresqlOperatorCharm(TypedCharmBase[CharmConfig]):
             return str(self.model.get_binding(PEER).network.bind_address)
         # Check if host is a peer.
         elif unit in self._peers.data:
-            return str(self._peers.data[unit].get("private-address"))
+            return str(self._peers.data[unit].get("ip")) or str(self._peers.data[unit].get("private-address"))
         # Return None if the unit is not a peer neither the current unit.
         else:
             return None
@@ -1309,6 +1309,7 @@ class PostgresqlOperatorCharm(TypedCharmBase[CharmConfig]):
                 alternative_endpoints=other_cluster_endpoints
             )
             other_cluster_primary_ip = next(
+                replication_offer_relation.data[unit].get("ip") or
                 replication_offer_relation.data[unit].get("private-address")
                 for unit in replication_offer_relation.units
                 if unit.name.replace("/", "-") == other_cluster_primary
